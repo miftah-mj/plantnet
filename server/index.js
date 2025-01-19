@@ -49,6 +49,26 @@ const client = new MongoClient(uri, {
 });
 async function run() {
     try {
+        const db = client.db("plantNet");
+        const usersCollection = db.collection("users");
+
+        // save or update user data in the database
+        app.post("/user", async (req, res) => {
+            const email = req.params.email;
+            const query = { email };
+            const user = req.body;
+            // check if user exists in the database
+            const existingUser = await usersCollection.findOne(query);
+            if (existingUser) {
+                return res.send(existingUser);
+            }
+            const result = await usersCollection.insertOne({
+                ...user,
+                timestamp: Date.now(),
+            });
+            res.send(result);
+        });
+
         // Generate jwt token
         app.post("/jwt", async (req, res) => {
             const email = req.body;
