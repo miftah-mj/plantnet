@@ -64,6 +64,7 @@ async function run() {
             }
             const result = await usersCollection.insertOne({
                 ...user,
+                role: "customer",
                 timestamp: Date.now(),
             });
             res.send(result);
