@@ -8,6 +8,7 @@ const morgan = require("morgan");
 
 const port = process.env.PORT || 9000;
 const app = express();
+
 // middleware
 const corsOptions = {
     origin: ["http://localhost:5173", "http://localhost:5174"],
