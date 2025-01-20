@@ -1,6 +1,12 @@
 import PropTypes from "prop-types";
+import { TbFidgetSpinner } from "react-icons/tb";
 
-const AddPlantForm = ({ handleSubmit, uploadButton, setUploadButton }) => {
+const AddPlantForm = ({
+    handleSubmit,
+    uploadButton,
+    setUploadButton,
+    uploading,
+}) => {
     return (
         <div className="w-full min-h-[calc(100vh-40px)] flex flex-col justify-center items-center text-gray-800 rounded-xl bg-gray-50">
             <form onSubmit={handleSubmit}>
@@ -117,19 +123,28 @@ const AddPlantForm = ({ handleSubmit, uploadButton, setUploadButton }) => {
                                             hidden
                                         />
                                         <div className="bg-lime-500 text-white border border-gray-300 rounded font-semibold cursor-pointer p-1 px-3 hover:bg-lime-500">
-                                            {uploadButton}
+                                            {uploadButton.name}
                                         </div>
                                     </label>
                                 </div>
                             </div>
                         </div>
+                        {uploadButton.size && (
+                            <p className="text-sm text-gray-500 text-center">
+                                Image size: {uploadButton.size} KB
+                            </p>
+                        )}
 
                         {/* Submit Button */}
                         <button
                             type="submit"
                             className="w-full p-3 mt-5 text-center font-medium text-white transition duration-200 rounded shadow-md bg-lime-500 "
                         >
-                            Save & Continue
+                            {uploading ? (
+                                <TbFidgetSpinner className="animate-spin m-auto" />
+                            ) : (
+                                "Save & Continue"
+                            )}
                         </button>
                     </div>
                 </div>
