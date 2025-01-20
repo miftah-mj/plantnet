@@ -51,9 +51,15 @@ async function run() {
     try {
         const db = client.db("plantNet");
         const usersCollection = db.collection("users");
+        const plantsCollection = db.collection("plants");
 
-        // save or update user data in the database
-        app.post("/user", async (req, res) => {
+        /**
+         *
+         * API Endpoints
+         *
+         */
+        // Save or update user data in the database
+        app.post("/users/:email", async (req, res) => {
             const email = req.params.email;
             const query = { email };
             const user = req.body;
@@ -97,6 +103,13 @@ async function run() {
             } catch (err) {
                 res.status(500).send(err);
             }
+        });
+
+        // Save plant data in the database
+        app.post("/plants", verifyToken, async (req, res) => {
+            const plant = req.body;
+            const result = await plantsCollection.insertOne(plant);
+            res.send(result);
         });
 
         // Send a ping to confirm a successful connection
