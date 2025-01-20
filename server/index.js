@@ -112,6 +112,12 @@ async function run() {
             res.send(result);
         });
 
+        // Get all plants from the database
+        app.get("/plants", async (req, res) => {
+            const plants = await plantsCollection.find().limit(20).toArray();
+            res.send(plants);
+        });
+
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log(

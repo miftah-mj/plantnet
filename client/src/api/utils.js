@@ -10,7 +10,7 @@ export const uploadImage = async (imageData) => {
         `https://api.imgbb.com/1/upload?key=${
             import.meta.env.VITE_IMGBB_API_KEY
         }`,
-        FormData
+        formData
     );
     return data.data.display_url;
 };

@@ -123,15 +123,15 @@ const AddPlantForm = ({
                                             hidden
                                         />
                                         <div className="bg-lime-500 text-white border border-gray-300 rounded font-semibold cursor-pointer p-1 px-3 hover:bg-lime-500">
-                                            {uploadButton.name}
+                                            {uploadButton?.name}
                                         </div>
                                     </label>
                                 </div>
                             </div>
                         </div>
-                        {uploadButton.size && (
+                        {uploadButton?.size && (
                             <p className="text-sm text-gray-500 text-center">
-                                Image size: {uploadButton.size} KB
+                                Image size: {uploadButton?.size} KB
                             </p>
                         )}
 
@@ -155,5 +155,8 @@ const AddPlantForm = ({
 
 AddPlantForm.propTypes = {
     handleSubmit: PropTypes.func.isRequired,
+    uploadButton: PropTypes.object.isRequired,
+    setUploadButton: PropTypes.func.isRequired,
+    uploading: PropTypes.bool.isRequired,
 };
 export default AddPlantForm;
