@@ -140,8 +140,22 @@ async function run() {
         // Save purchase data in the database
         app.post("/purchases", verifyToken, async (req, res) => {
             const purchase = req.body;
-            console.log(purchase)
+            console.log(purchase);
             const result = await purchasesCollection.insertOne(purchase);
+            res.send(result);
+        });
+
+        // Update plant quantity
+        app.patch("/plants/quantity/:id", verifyToken, async (req, res) => {
+            const id = req.params.id;
+            const { quantityUpdate } = req.body;
+            const filter = { _id: new ObjectId(id) };
+            let updateDoc = {
+                $inc: {
+                    quantity: -quantityUpdate,
+                },
+            };
+            const result = await plantsCollection.updateOne(filter, updateDoc);
             res.send(result);
         });
 

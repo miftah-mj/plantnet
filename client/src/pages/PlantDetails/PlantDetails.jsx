@@ -97,9 +97,10 @@ const PlantDetails = () => {
                     <hr className="my-6" />
 
                     <PurchaseModal
-                        plant={plant}
                         closeModal={closeModal}
                         isOpen={isOpen}
+                        plant={plant}
+                        refetch={refetch}
                     />
                 </div>
             </div>
