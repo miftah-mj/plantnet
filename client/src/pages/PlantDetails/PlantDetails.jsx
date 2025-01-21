@@ -87,6 +87,7 @@ const PlantDetails = () => {
                         </p>
                         <div>
                             <Button
+                                onClick={() => setIsOpen(true)}
                                 label={
                                     quantity > 0 ? "Purchase" : "Out of Stock"
                                 }
@@ -95,7 +96,11 @@ const PlantDetails = () => {
                     </div>
                     <hr className="my-6" />
 
-                    <PurchaseModal closeModal={closeModal} isOpen={isOpen} />
+                    <PurchaseModal
+                        plant={plant}
+                        closeModal={closeModal}
+                        isOpen={isOpen}
+                    />
                 </div>
             </div>
         </Container>
