@@ -10,13 +10,28 @@ import { Fragment, useState } from "react";
 import Button from "../Shared/Button/Button";
 import useAuth from "../../hooks/useAuth";
 import { toast } from "react-hot-toast";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const PurchaseModal = ({ closeModal, isOpen, plant }) => {
     const { user } = useAuth();
-    const { name, category, price, quantity } = plant;
+    const axiosSecure = useAxiosSecure();
+    const { name, category, price, seller, quantity, _id } = plant;
 
     const [totalQuantity, setTotalQuantity] = useState(1);
     const [totalPrice, setTotalPrice] = useState(price);
+    const [purchaseInfo, setPurchaseInfo] = useState({
+        customer: {
+            name: user?.displayName,
+            email: user?.email,
+            image: user?.photoURL,
+        },
+        plantId: _id,
+        quantity: totalQuantity,
+        price: totalPrice,
+        seller: seller?.email,
+        address: "",
+        status: "Pending",
+    });
 
     const handleQuantity = (value) => {
         if (value > quantity) {
@@ -28,10 +43,23 @@ const PurchaseModal = ({ closeModal, isOpen, plant }) => {
         }
         setTotalQuantity(value);
         setTotalPrice(price * value);
+        setPurchaseInfo((prv) => {
+            return { ...prv, quantity: value, price: price * value };
+        });
     };
 
     const handlePurchase = async () => {
         // handle purchase
+        console.log(purchaseInfo);
+        // POST request to database
+        try {
+            await axiosSecure.post("/purchases", purchaseInfo);
+            toast.success("Purchase Successfull!");
+        } catch (err) {
+            console.log(err);
+        } finally {
+            closeModal();
+        }
     };
 
     return (
@@ -127,6 +155,14 @@ const PurchaseModal = ({ closeModal, isOpen, plant }) => {
                                         Address:
                                     </label>
                                     <input
+                                        onChange={(e) =>
+                                            setPurchaseInfo((prv) => {
+                                                return {
+                                                    ...prv,
+                                                    address: e.target.value,
+                                                };
+                                            })
+                                        }
                                         className="p-2 text-gray-800 border border-lime-300 focus:outline-lime-500 rounded-md bg-white"
                                         name="address"
                                         id="address"

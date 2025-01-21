@@ -52,6 +52,7 @@ async function run() {
         const db = client.db("plantNet");
         const usersCollection = db.collection("users");
         const plantsCollection = db.collection("plants");
+        const purchasesCollection = db.collection("purchases");
 
         /**
          *
@@ -105,6 +106,11 @@ async function run() {
             }
         });
 
+        /**
+         *
+         * Plants
+         *
+         */
         // Save plant data in the database
         app.post("/plants", verifyToken, async (req, res) => {
             const plant = req.body;
@@ -124,6 +130,19 @@ async function run() {
             const query = { _id: new ObjectId(id) };
             const plant = await plantsCollection.findOne(query);
             res.send(plant);
+        });
+
+        /**
+         *
+         * Purchase
+         *
+         */
+        // Save purchase data in the database
+        app.post("/purchases", verifyToken, async (req, res) => {
+            const purchase = req.body;
+            console.log(purchase)
+            const result = await purchasesCollection.insertOne(purchase);
+            res.send(result);
         });
 
         // Send a ping to confirm a successful connection
