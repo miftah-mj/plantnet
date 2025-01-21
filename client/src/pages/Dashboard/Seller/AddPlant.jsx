@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 
 const AddPlant = () => {
     const { user } = useAuth();
-    const [uploadButton, setUploadButton] = useState({ name: "Upload Image" });
+    const [imageUpload, setImageUpload] = useState({ name: "Upload Image" });
     const [uploading, setUploading] = useState(false);
 
     // Handle form submission
@@ -64,8 +64,8 @@ const AddPlant = () => {
             {/* Form */}
             <AddPlantForm
                 handleSubmit={handleSubmit}
-                uploadButton={uploadButton}
-                setUploadButton={setUploadButton}
+                imageUpload={imageUpload}
+                setImageUpload={setImageUpload}
                 uploading={uploading}
             />
         </div>

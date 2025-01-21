@@ -3,8 +3,8 @@ import { TbFidgetSpinner } from "react-icons/tb";
 
 const AddPlantForm = ({
     handleSubmit,
-    uploadButton,
-    setUploadButton,
+    imageUpload,
+    setImageUpload,
     uploading,
 }) => {
     return (
@@ -110,29 +110,42 @@ const AddPlantForm = ({
                                 <div className="flex flex-col w-max mx-auto text-center">
                                     <label>
                                         <input
-                                            onChange={(e) =>
-                                                setUploadButton(
-                                                    e.target.files[0].name
-                                                )
-                                            }
                                             className="text-sm cursor-pointer w-36 hidden"
                                             type="file"
                                             name="image"
                                             id="image"
                                             accept="image/*"
                                             hidden
+                                            onChange={(e) => {
+                                                setImageUpload({
+                                                    image: e.target.files[0],
+                                                    url: URL.createObjectURL(
+                                                        e.target.files[0]
+                                                    ),
+                                                });
+                                            }}
                                         />
                                         <div className="bg-lime-500 text-white border border-gray-300 rounded font-semibold cursor-pointer p-1 px-3 hover:bg-lime-500">
-                                            {uploadButton?.name}
+                                            {imageUpload?.image?.name ||
+                                                "Upload Image"}
                                         </div>
                                     </label>
                                 </div>
                             </div>
                         </div>
-                        {uploadButton?.size && (
-                            <p className="text-sm text-gray-500 text-center">
-                                Image size: {uploadButton?.size} KB
-                            </p>
+                        {imageUpload && imageUpload?.image?.size && (
+                            <div className="flex gap-6 items-center justify-center">
+                                <img
+                                    className="w-20"
+                                    src={imageUpload?.url}
+                                    alt=""
+                                />
+                                <p className="text-sm text-gray-500 text-center">
+                                    Image size:{" "}
+                                    {(imageUpload.image.size / 1024).toFixed(2)}{" "}
+                                    KB
+                                </p>
+                            </div>
                         )}
 
                         {/* Submit Button */}
@@ -155,8 +168,8 @@ const AddPlantForm = ({
 
 AddPlantForm.propTypes = {
     handleSubmit: PropTypes.func.isRequired,
-    uploadButton: PropTypes.object.isRequired,
-    setUploadButton: PropTypes.func.isRequired,
+    imageUpload: PropTypes.object,
+    setImageUpload: PropTypes.func.isRequired,
     uploading: PropTypes.bool.isRequired,
 };
 export default AddPlantForm;
