@@ -148,13 +148,22 @@ async function run() {
         // Update plant quantity
         app.patch("/plants/quantity/:id", verifyToken, async (req, res) => {
             const id = req.params.id;
-            const { quantityUpdate } = req.body;
+            const { quantityUpdate, status } = req.body;
             const filter = { _id: new ObjectId(id) };
+
             let updateDoc = {
                 $inc: {
                     quantity: -quantityUpdate,
                 },
             };
+            if (status === "increase") {
+                updateDoc = {
+                    $inc: {
+                        quantity: quantityUpdate,
+                    },
+                };
+            }
+
             const result = await plantsCollection.updateOne(filter, updateDoc);
             res.send(result);
         });
@@ -195,6 +204,19 @@ async function run() {
                 ])
                 .toArray();
             res.send(purchases);
+        });
+
+        // Delete a purchase
+        app.delete("/purchases/:id", verifyToken, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const purchase = await purchasesCollection.findOne(query);
+            if (purchase.status === "delivered")
+                return res
+                    .status(409)
+                    .send("Cannot delete a delivered purchase");
+            const result = await purchasesCollection.deleteOne(query);
+            res.send(result);
         });
 
         // Send a ping to confirm a successful connection
