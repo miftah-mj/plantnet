@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import { useState } from "react";
 import DeleteModal from "../../Modal/DeleteModal";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import toast from "react-hot-toast";
 
 const CustomerOrderDataRow = ({ purchase, refetch }) => {
     const { name, category, price, quantity, status, image, _id, plantId } =
@@ -24,8 +25,10 @@ const CustomerOrderDataRow = ({ purchase, refetch }) => {
             });
             // Call refetch to update the UI
             refetch();
+            toast.success("Purchase deleted successfully!");
         } catch (err) {
             console.log(err);
+            toast.error(err.response.data);
         } finally {
             closeModal();
         }

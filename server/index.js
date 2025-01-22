@@ -77,6 +77,27 @@ async function run() {
             res.send(result);
         });
 
+        // Manage user status and role
+        app.patch("/users/:email", verifyToken, async (req, res) => {
+            const email = req.params.email;
+            const query = { email };
+            const user = await usersCollection.findOne(query);
+            if (!user || user?.status === "requested")
+                return res
+                    .status(400)
+                    .send(
+                        "You have already requested to become a seller. Please wait for approval."
+                    );
+
+            const updateDoc = {
+                $set: {
+                    status: "requested",
+                },
+            };
+            const result = await usersCollection.updateOne(query, updateDoc);
+            res.send(result);
+        });
+
         // Generate jwt token
         app.post("/jwt", async (req, res) => {
             const email = req.body;
@@ -211,7 +232,7 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const purchase = await purchasesCollection.findOne(query);
-            if (purchase.status === "delivered")
+            if (purchase.status === "Delivered")
                 return res
                     .status(409)
                     .send("Cannot delete a delivered purchase");
