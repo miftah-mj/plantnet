@@ -56,7 +56,7 @@ async function run() {
 
         /**
          *
-         * API Endpoints
+         * Users API
          *
          */
         // Save or update user data in the database
@@ -98,6 +98,19 @@ async function run() {
             res.send(result);
         });
 
+        // Get user role
+        app.get("/users/role/:email", verifyToken, async (req, res) => {
+            const email = req.params.email;
+            const query = { email };
+            const user = await usersCollection.findOne(query);
+            res.send({ role: user?.role });
+        });
+
+        /**
+         *
+         * JWT Authentication
+         *
+         */
         // Generate jwt token
         app.post("/jwt", async (req, res) => {
             const email = req.body;
