@@ -17,5 +17,4 @@ const SellerRoute = ({ children }) => {
 SellerRoute.propTypes = {
     children: PropTypes.element,
 };
-
 export default SellerRoute;
