@@ -65,6 +65,7 @@ async function run() {
                     message:
                         "Forbidden access!! Only Admins can perform this action.",
                 });
+
             next();
         };
 
@@ -79,6 +80,7 @@ async function run() {
                     message:
                         "Forbidden access!! Only Sellers can perform this action.",
                 });
+
             next();
         };
 
@@ -140,20 +142,28 @@ async function run() {
         );
 
         // Update user role and status
-        app.patch("/users/role/:email", verifyToken, async (req, res) => {
-            const email = req.params.email;
-            const { role } = req.body;
-            const filter = { email };
+        app.patch(
+            "/users/role/:email",
+            verifyToken,
+            verifyAdmin,
+            async (req, res) => {
+                const email = req.params.email;
+                const { role } = req.body;
+                const filter = { email };
 
-            const updateDoc = {
-                $set: {
-                    role,
-                    status: "verified",
-                },
-            };
-            const result = await usersCollection.updateOne(filter, updateDoc);
-            res.send(result);
-        });
+                const updateDoc = {
+                    $set: {
+                        role,
+                        status: "verified",
+                    },
+                };
+                const result = await usersCollection.updateOne(
+                    filter,
+                    updateDoc
+                );
+                res.send(result);
+            }
+        );
 
         // Get user role
         app.get("/users/role/:email", verifyToken, async (req, res) => {
@@ -221,6 +231,28 @@ async function run() {
             const query = { _id: new ObjectId(id) };
             const plant = await plantsCollection.findOne(query);
             res.send(plant);
+        });
+
+        // Get inventory data for seller
+        app.get(
+            "/seller-inventory",
+            verifyToken,
+            verifySeller,
+            async (req, res) => {
+                const email = req.user.email;
+                const inventory = await plantsCollection
+                    .find({ "seller.email": email })
+                    .toArray();
+                res.send(inventory);
+            }
+        );
+
+        // Delete a plant by id
+        app.delete("/plants/:id", verifyToken, verifySeller, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await plantsCollection.deleteOne(query);
+            res.send(result);
         });
 
         /**
