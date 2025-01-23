@@ -98,6 +98,14 @@ async function run() {
             res.send(result);
         });
 
+        // Get all users data
+        app.get("/all-users/:email", verifyToken, async (req, res) => {
+            const email = req.params.email;
+            const query = { email: { $ne: email } };
+            const users = await usersCollection.find(query).toArray();
+            res.send(users);
+        });
+
         // Get user role
         app.get("/users/role/:email", verifyToken, async (req, res) => {
             const email = req.params.email;

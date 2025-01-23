@@ -1,42 +1,54 @@
-import { useState } from 'react'
-import UpdateUserModal from '../../Modal/UpdateUserModal'
-import PropTypes from 'prop-types'
-const UserDataRow = () => {
-  const [isOpen, setIsOpen] = useState(false)
+import { useState } from "react";
+import UpdateUserModal from "../../Modal/UpdateUserModal";
+import PropTypes from "prop-types";
 
-  return (
-    <tr>
-      <td className='px-5 py-5 border-b border-gray-200 bg-white text-sm'>
-        <p className='text-gray-900 whitespace-no-wrap'>abc@gmail.com</p>
-      </td>
-      <td className='px-5 py-5 border-b border-gray-200 bg-white text-sm'>
-        <p className='text-gray-900 whitespace-no-wrap'>Customer</p>
-      </td>
-      <td className='px-5 py-5 border-b border-gray-200 bg-white text-sm'>
-        <p className='text-red-500 whitespace-no-wrap'>Unavailable</p>
-      </td>
+const UserDataRow = ({ userData }) => {
+    const { email, role, status } = userData || {};
+    const [isOpen, setIsOpen] = useState(false);
 
-      <td className='px-5 py-5 border-b border-gray-200 bg-white text-sm'>
-        <span
-          onClick={() => setIsOpen(true)}
-          className='relative cursor-pointer inline-block px-3 py-1 font-semibold text-green-900 leading-tight'
-        >
-          <span
-            aria-hidden='true'
-            className='absolute inset-0 bg-green-200 opacity-50 rounded-full'
-          ></span>
-          <span className='relative'>Update Role</span>
-        </span>
-        {/* Modal */}
-        <UpdateUserModal isOpen={isOpen} setIsOpen={setIsOpen} />
-      </td>
-    </tr>
-  )
-}
+    return (
+        <tr>
+            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                <p className="text-gray-900 whitespace-no-wrap">{email}</p>
+            </td>
+            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                <p className="text-gray-900 whitespace-no-wrap capitalize">
+                    {role}
+                </p>
+            </td>
+            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                <p
+                    className={` ${
+                        status === "requested" && "text-yellow-500"
+                    } ${
+                        status === "verified" && "text-green-500"
+                    }  text-red-500 whitespace-no-wrap capitalize`}
+                >
+                    {status ? status : "unavailable"}
+                </p>
+            </td>
+
+            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                <span
+                    onClick={() => setIsOpen(true)}
+                    className="relative cursor-pointer inline-block px-3 py-1 font-semibold text-green-900 leading-tight"
+                >
+                    <span
+                        aria-hidden="true"
+                        className="absolute inset-0 bg-green-200 opacity-50 rounded-full"
+                    ></span>
+                    <span className="relative">Update Role</span>
+                </span>
+                {/* Modal */}
+                <UpdateUserModal isOpen={isOpen} setIsOpen={setIsOpen} />
+            </td>
+        </tr>
+    );
+};
 
 UserDataRow.propTypes = {
-  user: PropTypes.object,
-  refetch: PropTypes.func,
-}
+    userData: PropTypes.object,
+    refetch: PropTypes.func,
+};
 
-export default UserDataRow
+export default UserDataRow;
