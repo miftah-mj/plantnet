@@ -1,10 +1,30 @@
 import { useState } from "react";
 import UpdateUserModal from "../../Modal/UpdateUserModal";
 import PropTypes from "prop-types";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import toast from "react-hot-toast";
 
-const UserDataRow = ({ userData }) => {
+const UserDataRow = ({ userData, refetch }) => {
+    const axiosSecure = useAxiosSecure();
     const { email, role, status } = userData || {};
     const [isOpen, setIsOpen] = useState(false);
+
+    // Handle updating user role
+    const updateRole = async (selectedRole) => {
+        if (role === selectedRole) return;
+        try {
+            await axiosSecure.patch(`/users/role/${email}`, {
+                role: selectedRole,
+            });
+
+            toast.success("Role Updated");
+            refetch();
+        } catch (err) {
+            toast.error(err.response.data);
+        } finally {
+            setIsOpen(false);
+        }
+    };
 
     return (
         <tr>
@@ -17,15 +37,21 @@ const UserDataRow = ({ userData }) => {
                 </p>
             </td>
             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                <p
-                    className={` ${
-                        status === "requested" && "text-yellow-500"
-                    } ${
-                        status === "verified" && "text-green-500"
-                    }  text-red-500 whitespace-no-wrap capitalize`}
-                >
-                    {status ? status : "unavailable"}
-                </p>
+                {status ? (
+                    <p
+                        className={` ${
+                            status === "requested"
+                                ? "text-yellow-500"
+                                : "text-green-500"
+                        } whitespace-no-wrap capitalize`}
+                    >
+                        {status}
+                    </p>
+                ) : (
+                    <p className="text-red-500 whitespace-no-wrap capitalize">
+                        unavailable
+                    </p>
+                )}
             </td>
 
             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
@@ -40,7 +66,12 @@ const UserDataRow = ({ userData }) => {
                     <span className="relative">Update Role</span>
                 </span>
                 {/* Modal */}
-                <UpdateUserModal isOpen={isOpen} setIsOpen={setIsOpen} />
+                <UpdateUserModal
+                    isOpen={isOpen}
+                    setIsOpen={setIsOpen}
+                    role={role}
+                    updateRole={updateRole}
+                />
             </td>
         </tr>
     );

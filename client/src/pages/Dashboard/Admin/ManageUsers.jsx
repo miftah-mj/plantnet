@@ -3,11 +3,16 @@ import UserDataRow from "../../../components/Dashboard/TableRows/UserDataRow";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import useAuth from "../../../hooks/useAuth";
+import LoadingSpinner from "../../../components/Shared/LoadingSpinner";
 
 const ManageUsers = () => {
     const { user } = useAuth();
     const axiosSecure = useAxiosSecure();
-    const { data: users = [], isLoading } = useQuery({
+    const {
+        data: users = [],
+        isLoading,
+        refetch,
+    } = useQuery({
         // [] is the initial value of users
         queryKey: ["users", user?.email],
         queryFn: async () => {
@@ -16,6 +21,8 @@ const ManageUsers = () => {
         },
     });
     console.log(users);
+
+    if (isLoading) return <LoadingSpinner />;
 
     return (
         <>
@@ -62,6 +69,7 @@ const ManageUsers = () => {
                                         <UserDataRow
                                             key={userData?._id}
                                             userData={userData}
+                                            refetch={refetch}
                                         />
                                     ))}
                                 </tbody>

@@ -98,12 +98,28 @@ async function run() {
             res.send(result);
         });
 
-        // Get all users data
+        // Get all users data except the current user
         app.get("/all-users/:email", verifyToken, async (req, res) => {
             const email = req.params.email;
             const query = { email: { $ne: email } };
             const users = await usersCollection.find(query).toArray();
             res.send(users);
+        });
+
+        // Update user role and status
+        app.patch("/users/role/:email", verifyToken, async (req, res) => {
+            const email = req.params.email;
+            const { role } = req.body;
+            const filter = { email };
+
+            const updateDoc = {
+                $set: {
+                    role,
+                    status: "verified",
+                },
+            };
+            const result = await usersCollection.updateOne(filter, updateDoc);
+            res.send(result);
         });
 
         // Get user role
