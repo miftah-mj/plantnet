@@ -1,14 +1,37 @@
 import { Helmet } from "react-helmet-async";
 
 import SellerOrderDataRow from "../../../components/Dashboard/TableRows/SellerOrderDataRow";
+import useAuth from "../../../hooks/useAuth";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import { useQuery } from "@tanstack/react-query";
+import LoadingSpinner from "../../../components/Shared/LoadingSpinner";
 
 const ManageOrders = () => {
+    const { user } = useAuth();
+    const axiosSecure = useAxiosSecure();
+
+    const {
+        data: purchases = {},
+        isLoading,
+        refetch,
+    } = useQuery({
+        queryKey: ["purchases", user?.email],
+        queryFn: async () => {
+            const { data } = await axiosSecure(
+                `/seller-purchases/${user?.email}`
+            );
+            return data;
+        },
+    });
+    console.log(purchases);
+    if (isLoading) return <LoadingSpinner />;
+
     return (
         <>
             <Helmet>
                 <title>Manage Orders</title>
             </Helmet>
-            
+
             <div className="container mx-auto px-4 sm:px-8">
                 <div className="py-8">
                     <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
@@ -62,7 +85,15 @@ const ManageOrders = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <SellerOrderDataRow />
+                                    {
+                                        purchases.map((purchaseData) => (
+                                            <SellerOrderDataRow
+                                                key={purchaseData._id}
+                                                purchaseData={purchaseData}
+                                                refetch={refetch}
+                                            />
+                                        ))
+                                    }
                                 </tbody>
                             </table>
                         </div>

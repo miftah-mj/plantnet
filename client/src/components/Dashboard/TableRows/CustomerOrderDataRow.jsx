@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 
 const CustomerOrderDataRow = ({ purchase, refetch }) => {
     const { name, category, price, quantity, status, image, _id, plantId } =
-        purchase;
+        purchase || {};
     console.log(purchase);
     const axiosSecure = useAxiosSecure();
 

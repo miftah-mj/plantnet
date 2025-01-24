@@ -248,12 +248,17 @@ async function run() {
         );
 
         // Delete a plant by id
-        app.delete("/plants/:id", verifyToken, verifySeller, async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: new ObjectId(id) };
-            const result = await plantsCollection.deleteOne(query);
-            res.send(result);
-        });
+        app.delete(
+            "/plants/:id",
+            verifyToken,
+            verifySeller,
+            async (req, res) => {
+                const id = req.params.id;
+                const query = { _id: new ObjectId(id) };
+                const result = await plantsCollection.deleteOne(query);
+                res.send(result);
+            }
+        );
 
         /**
          *
@@ -292,9 +297,10 @@ async function run() {
         });
 
         // Get all purchases for a specific customer
-        app.get("/purchases/:email", verifyToken, async (req, res) => {
+        app.get("/customer-purchases/:email", verifyToken, async (req, res) => {
             const email = req.params.email;
             const query = { "customer.email": email };
+
             const purchases = await purchasesCollection
                 .aggregate([
                     { $match: query }, // filter purchases by customer email
@@ -328,6 +334,48 @@ async function run() {
                 .toArray();
             res.send(purchases);
         });
+
+        // Get all puchases for a specific seller
+        app.get(
+            "/seller-purchases/:email",
+            verifyToken,
+            verifySeller,
+            async (req, res) => {
+                const email = req.params.email;
+                const query = { seller: email };
+
+                const purchases = await purchasesCollection
+                    .aggregate([
+                        { $match: query }, // filter purchases by customer email
+                        {
+                            $addFields: {
+                                // add a new field to the document
+                                plantId: {
+                                    $toObjectId: "$plantId",
+                                },
+                            },
+                        },
+                        {
+                            $lookup: {
+                                // join the purchases collection with the plants collection
+                                from: "plants", // collection to join
+                                localField: "plantId", // field from the purchases collection
+                                foreignField: "_id", // field from the plants collection
+                                as: "plant", // output array field
+                            },
+                        },
+                        { $unwind: "$plant" }, // deconstruct the plant array
+                        {
+                            $addFields: {
+                                name: "$plant.name",
+                            },
+                        },
+                        { $project: { plant: 0 } }, // remove the plant field
+                    ])
+                    .toArray();
+                res.send(purchases);
+            }
+        );
 
         // Delete a purchase
         app.delete("/purchases/:id", verifyToken, async (req, res) => {
