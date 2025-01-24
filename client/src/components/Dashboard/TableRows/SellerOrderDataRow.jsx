@@ -33,6 +33,23 @@ const SellerOrderDataRow = ({ purchaseData, refetch }) => {
         }
     };
 
+    // Update the status of the purchase
+    const handleStatusChange = async (newStatus) => {
+        if (status === newStatus) return;
+        console.log(newStatus);
+        // Update the status using patch request
+        try {
+            await axiosSecure.patch(`/purchases/${_id}`, {
+                status: newStatus,
+            });
+            refetch();
+            toast.success("Status updated!");
+        } catch (err) {
+            console.log(err);
+            toast.error(err.response.data);
+        }
+    };
+
     return (
         <tr>
             <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
@@ -61,6 +78,8 @@ const SellerOrderDataRow = ({ purchaseData, refetch }) => {
                     <select
                         required
                         defaultValue={status}
+                        onChange={(e) => handleStatusChange(e.target.value)}
+                        disabled={status === "Delivered"}
                         className="p-1 border-2 border-lime-300 focus:outline-lime-500 rounded-md text-gray-900 whitespace-no-wrap bg-white"
                         name="category"
                     >
