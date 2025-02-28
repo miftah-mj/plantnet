@@ -6,12 +6,17 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 const morgan = require("morgan");
 
-const port = process.env.PORT || 9000;
+const port = process.env.PORT || 5000;
 const app = express();
 
 // middleware
 const corsOptions = {
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: [
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "https://plantnet-2fd54.web.app",
+        "https://plantnet-2fd54.firebaseapp.com",
+    ],
     credentials: true,
     optionSuccessStatus: 200,
 };
@@ -129,12 +134,17 @@ async function run() {
         });
 
         // Get all users data except the current user
-        app.get("/all-users/:email", verifyToken, verifyAdmin, async (req, res) => {
-            const email = req.params.email;
-            const query = { email: { $ne: email } };
-            const users = await usersCollection.find(query).toArray();
-            res.send(users);
-        });
+        app.get(
+            "/all-users/:email",
+            verifyToken,
+            verifyAdmin,
+            async (req, res) => {
+                const email = req.params.email;
+                const query = { email: { $ne: email } };
+                const users = await usersCollection.find(query).toArray();
+                res.send(users);
+            }
+        );
 
         // Update user role and status
         app.patch(
@@ -229,21 +239,31 @@ async function run() {
         });
 
         // Get inventory data for seller
-        app.get("/seller-inventory", verifyToken, verifySeller, async (req, res) => {
-            const email = req.user.email;
-            const inventory = await plantsCollection
-                .find({ "seller.email": email })
-                .toArray();
-            res.send(inventory);
-        });
+        app.get(
+            "/seller-inventory",
+            verifyToken,
+            verifySeller,
+            async (req, res) => {
+                const email = req.user.email;
+                const inventory = await plantsCollection
+                    .find({ "seller.email": email })
+                    .toArray();
+                res.send(inventory);
+            }
+        );
 
         // Delete a plant by id
-        app.delete("/plants/:id", verifyToken, verifySeller, async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: new ObjectId(id) };
-            const result = await plantsCollection.deleteOne(query);
-            res.send(result);
-        });
+        app.delete(
+            "/plants/:id",
+            verifyToken,
+            verifySeller,
+            async (req, res) => {
+                const id = req.params.id;
+                const query = { _id: new ObjectId(id) };
+                const result = await plantsCollection.deleteOne(query);
+                res.send(result);
+            }
+        );
 
         /**
          *
@@ -286,6 +306,7 @@ async function run() {
             const email = req.params.email;
             const query = { "customer.email": email };
 
+            // aggregate query to join purchases with plants
             const purchases = await purchasesCollection
                 .aggregate([
                     { $match: query }, // filter purchases by customer email
@@ -321,56 +342,69 @@ async function run() {
         });
 
         // Get all puchases for a specific seller
-        app.get("/seller-purchases/:email", verifyToken, verifySeller, async (req, res) => {
-            const email = req.params.email;
-            const query = { seller: email };
+        app.get(
+            "/seller-purchases/:email",
+            verifyToken,
+            verifySeller,
+            async (req, res) => {
+                const email = req.params.email;
+                const query = { seller: email };
 
-            const purchases = await purchasesCollection
-                .aggregate([
-                    { $match: query }, // filter purchases by customer email
-                    {
-                        $addFields: {
-                            // add a new field to the document
-                            plantId: {
-                                $toObjectId: "$plantId",
+                const purchases = await purchasesCollection
+                    .aggregate([
+                        { $match: query }, // filter purchases by customer email
+                        {
+                            $addFields: {
+                                // add a new field to the document
+                                plantId: {
+                                    $toObjectId: "$plantId",
+                                },
                             },
                         },
-                    },
-                    {
-                        $lookup: {
-                            // join the purchases collection with the plants collection
-                            from: "plants", // collection to join
-                            localField: "plantId", // field from the purchases collection
-                            foreignField: "_id", // field from the plants collection
-                            as: "plant", // output array field
+                        {
+                            $lookup: {
+                                // join the purchases collection with the plants collection
+                                from: "plants", // collection to join
+                                localField: "plantId", // field from the purchases collection
+                                foreignField: "_id", // field from the plants collection
+                                as: "plant", // output array field
+                            },
                         },
-                    },
-                    { $unwind: "$plant" }, // deconstruct the plant array
-                    {
-                        $addFields: {
-                            name: "$plant.name",
+                        { $unwind: "$plant" }, // deconstruct the plant array
+                        {
+                            $addFields: {
+                                name: "$plant.name",
+                            },
                         },
-                    },
-                    { $project: { plant: 0 } }, // remove the plant field
-                ])
-                .toArray();
-            res.send(purchases);
-        });
+                        { $project: { plant: 0 } }, // remove the plant field
+                    ])
+                    .toArray();
+                res.send(purchases);
+            }
+        );
 
         // Update the status of a purchase
-        app.patch("/purchases/:id", verifyToken, verifySeller, async (req, res) => {
-            const id = req.params.id;
-            const { status } = req.body;
-            const filter = { _id: new ObjectId(id) };
+        app.patch(
+            "/purchases/:id",
+            verifyToken,
+            verifySeller,
+            async (req, res) => {
+                const id = req.params.id;
+                const { status } = req.body;
+                const filter = { _id: new ObjectId(id) };
 
-            const updateDoc = {
-                $set: {
-                    status,
-                },
-            };
-            const result = await purchasesCollection.updateOne(filter, updateDoc);
-            res.send(result);
-        });
+                const updateDoc = {
+                    $set: {
+                        status,
+                    },
+                };
+                const result = await purchasesCollection.updateOne(
+                    filter,
+                    updateDoc
+                );
+                res.send(result);
+            }
+        );
 
         // Delete a purchase
         app.delete("/purchases/:id", verifyToken, async (req, res) => {

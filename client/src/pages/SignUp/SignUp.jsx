@@ -174,7 +174,6 @@ const SignUp = () => {
                     >
                         Login
                     </Link>
-                    .
                 </p>
             </div>
         </div>

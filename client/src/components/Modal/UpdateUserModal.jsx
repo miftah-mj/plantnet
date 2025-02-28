@@ -13,6 +13,7 @@ import {
 } from "@headlessui/react";
 import { BsCheckLg } from "react-icons/bs";
 import { AiOutlineDown } from "react-icons/ai";
+
 const roles = ["customer", "seller", "admin"];
 
 const UpdateUserModal = ({ setIsOpen, isOpen, role, updateRole }) => {
