@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 const morgan = require("morgan");
+const nodemailer = require("nodemailer");
 
 const port = process.env.PORT || 5000;
 const app = express();

@@ -88,7 +88,7 @@ const ManageOrders = () => {
                                     {
                                         purchases.map((purchaseData) => (
                                             <SellerOrderDataRow
-                                                key={purchaseData._id}
+                                                key={purchaseData?._id}
                                                 purchaseData={purchaseData}
                                                 refetch={refetch}
                                             />
